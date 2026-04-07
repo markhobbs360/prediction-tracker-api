@@ -1,0 +1,36 @@
+databases:
+  - name: prediction-tracker-db
+    plan: free
+    databaseName: prediction_tracker
+    user: prediction_tracker
+    region: oregon
+
+services:
+  - type: web
+    name: prediction-tracker-api
+    plan: free
+    runtime: python
+    region: oregon
+    buildCommand: pip install .
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: prediction-tracker-db
+          property: connectionURI
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://predictions.fundmetriclabs.com,https://fundmetriclabs-predictions.netlify.app
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: JIRA_BASE_URL
+        value: https://fundmetric.atlassian.net
+      - key: JIRA_EMAIL
+        sync: false
+      - key: JIRA_API_TOKEN
+        sync: false
+      - key: SHARED_PASSWORD
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.12.0"
