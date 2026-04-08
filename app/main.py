@@ -9,12 +9,9 @@ from app.routers import auth, clients, intakes, predictions, analyses, feedback,
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    # Create tables on startup
+    # Import all models so Base.metadata knows about them, then create tables
     from app.database import engine, Base
-    from app.models import (  # noqa: F401 — ensure all models are imported
-        user, client, program, feature, intake_brief,
-        prediction, analysis, feedback as fb_model, audit_log,
-    )
+    import app.models  # noqa: F401 — triggers __init__.py which imports all models
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
